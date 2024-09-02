@@ -1,0 +1,42 @@
+{
+	"compilerOptions": {
+		"sourceMap": true,
+		"allowJs": true,
+		"target": "ES2015",
+		"module": "ES2015",
+		"lib": [
+			"ES2017",
+			"dom"
+		],
+		"declaration": true,
+		"declarationDir": "./dist/typings/",
+		"outDir": "./dist/",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": ".",
+		"paths": {
+			"@~crazy/launcher": [
+				"./src"
+			],
+			"@/*": [
+				"./example/*"
+			],
+		}
+	},
+	"files": [
+		"src/index.ts"
+	],
+	"include": [
+		"./src/**/*",
+		"./src/**/*.ts",
+		"./src/**/*.d.ts",
+		"./src/**/*.vue",
+		"./example/**/*",
+		"./example/**/*.ts",
+		"./example/**/*.d.ts",
+		"./example/**/*.vue",
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
