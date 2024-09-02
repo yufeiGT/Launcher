@@ -129,9 +129,12 @@ export class Launcher<T extends EventMap = EventMap> extends EventManager<T> {
 						clearTimeout(timeoutID);
 						const { status, statusText } = response;
 						const responseText = await response.text();
-						const responseData: Launcher.Response<T> = Launcher.getResponse<
+						let responseData: Launcher.Response<T> = Launcher.getResponse<
 							T
 						>(status, statusText, responseText);
+						if (Spanner.isFunction(this.options.afterHandler)) {
+							responseData = this.options.afterHandler(responseData, status);
+						}
 						this.#complete<T>(
 							resolve,
 							reject,
@@ -513,6 +516,14 @@ export namespace Launcher {
 		 */
 		beforeHandler?: (controller: AbortController) => void;
 		/**
+		 * 请求后回调
+		 * 主要用于对响应结构体进行修改
+		 * @param response 请求响应数据
+		 * @param status http状态码
+		 * @returns
+		 */
+		afterHandler?: (response: Response<T>, status: ResponseCode) => Response<T>;
+		/**
 		 * 请求超时回调
 		 * @param requestOptions 请求选项
 		 * @param again 重新发起请求
@@ -695,6 +706,17 @@ export namespace Launcher {
 		 * @param controller 取消请求控制器
 		 */
 		beforeHandler?: (controller: AbortController) => void;
+		/**
+		 * 请求后回调
+		 * 主要用于对响应结构体进行修改
+		 * @param response 请求响应数据
+		 * @param status http状态码
+		 * @returns
+		 */
+		afterHandler?: <T>(
+		  response: Response<T>,
+		  status: ResponseCode
+		) => Response<T>;
 		/**
 		 * 验证失败回调
 		 * @param code 状态码
