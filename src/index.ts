@@ -127,13 +127,24 @@ export class Launcher<T extends EventMap = EventMap> extends EventManager<T> {
 				fetch(`${baseUrl}${url}`, opts)
 					.then(async (response) => {
 						clearTimeout(timeoutID);
-						const { status, statusText } = response;
+						let responseData: Launcher.Response<T>;
+						let status = response.status;
 						const responseText = await response.text();
-						let responseData: Launcher.Response<T> = Launcher.getResponse<
-							T
-						>(status, statusText, responseText);
-						if (Spanner.isFunction(this.options.afterHandler)) {
-							responseData = this.options.afterHandler(responseData, status);
+						if (Spanner.isFunction(this.#options.afterHandler)) {
+							const res = this.options.afterHandler<T>(
+								response,
+								responseText
+							);
+							if ('status' in res) {
+								status = res.status;
+							}
+							responseData = res.response;
+						} else {
+							responseData = Launcher.getResponse<T>(
+								status,
+								response.statusText,
+								responseText
+							);
 						}
 						this.#complete<T>(
 							resolve,
@@ -519,10 +530,22 @@ export namespace Launcher {
 		 * 请求后回调
 		 * 主要用于对响应结构体进行修改
 		 * @param response 请求响应数据
-		 * @param status http状态码
+		 * @param responseText 响应数据字符串
 		 * @returns
 		 */
-		afterHandler?: (response: Response<T>, status: ResponseCode) => Response<T>;
+		afterHandler?: (
+			response: globalThis.Response,
+			responseText: string
+		) => {
+			/**
+			 * 状态码
+			 */
+			status?: number;
+			/**
+			 * 相应内容
+			 */
+			response: Response<T>;
+		};
 		/**
 		 * 请求超时回调
 		 * @param requestOptions 请求选项
@@ -710,13 +733,22 @@ export namespace Launcher {
 		 * 请求后回调
 		 * 主要用于对响应结构体进行修改
 		 * @param response 请求响应数据
-		 * @param status http状态码
+		 * @param responseText 响应数据字符串
 		 * @returns
 		 */
 		afterHandler?: <T>(
-		  response: Response<T>,
-		  status: ResponseCode
-		) => Response<T>;
+			response: globalThis.Response,
+			responseText: string
+		) => {
+			/**
+			 * 状态码
+			 */
+			status?: number;
+			/**
+			 * 相应内容
+			 */
+			response: Response<T>;
+		};
 		/**
 		 * 验证失败回调
 		 * @param code 状态码
