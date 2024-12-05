@@ -124,6 +124,7 @@ export class Launcher<T extends EventMap = EventMap> extends EventManager<T> {
 							});
 					}
 				}, timeout);
+				console.log(opts);
 				fetch(`${baseUrl}${url}`, opts)
 					.then(async (response) => {
 						clearTimeout(timeoutID);
